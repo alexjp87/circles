@@ -180,7 +180,11 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   };
 
   const resetTimer = () => {
-    setTimer(10.0); // Reset to 10 seconds
+    if (level >= 4) {
+      setTimer(9.5); // Set timer to 9 seconds from Level 4 onwards
+    } else {
+      setTimer(10.0); // Set timer to 10 seconds for earlier levels
+    }
     setIsTimerRunning(true); // Start the timer again
   };
 
