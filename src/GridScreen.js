@@ -202,6 +202,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     setIsNextLevel(false);
     setIsPaused(false);
     setShouldFlashWarning(false);
+    setIsNegativePrompt(false);
 
     if (shouldResetLevel) {
       setLevel(1);
@@ -229,7 +230,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     <div className={`grid-screen-ctnr ${darkMode ? "dark" : ""}`}>
       <div className="top-edge-ctnr">
         <Header title={`Grid Moshe : Level ${level}`} />
-        {level >= 3 && (
+        {level >= 3 && !isGameOver && (
         <GridTimer
         timer={timer}
         isTimerRunning={isTimerRunning}
