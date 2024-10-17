@@ -526,3 +526,16 @@ h1, h2 {
   z-index: 1001; /* Ensure the message is above the overlay */
   pointer-events: auto; /* Allow interaction with the Game Over message if needed */
 }
+
+
+/* ======================================================================================================= */
+/* ======================================================================================================= */
+/* ======================================================================================================= */
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  .home-screen-ctnr {
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+  }
+}

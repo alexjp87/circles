@@ -95,7 +95,6 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   const resetGridScreen = (shouldResetLevel = true) => {
     const resetGridMushrooms = generateGridMushrooms(shuffleArray(colors));
     setGridMushrooms(resetGridMushrooms);
-    setScore(0);
     setCorrectBarProgress(0); 
     setIncorrectBarProgress(0); 
     setIsGameOver(false); 
@@ -103,6 +102,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
 
     if (shouldResetLevel) {
       setLevel(1); 
+      setScore(0);
     }
 
     randomizeWordAndColor();
