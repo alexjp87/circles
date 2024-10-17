@@ -10,6 +10,7 @@ import GridIncorrectBar from "./components/GridIncorrectBar";
 import GridCorrectBar from "./components/GridCorrectBar";
 import GridMessageOverlay from "./components/GridMessageOverlay";
 import GridTimer from "./components/GridTimer";
+import PauseToggle from "./components/PauseToggle";
 
 const GridScreen = ({ onReturnToHomeScreen }) => {
   const [gridMushrooms, setGridMushrooms] = useState([]);
@@ -27,6 +28,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   const [isStartGame, setIsStartGame] = useState(true);
   const [timer, setTimer] = useState(10.0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const colors = [
     "blue",
@@ -65,7 +67,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   }, []);
 
   useEffect(() => {
-    if (!isTimerRunning || isGameOver || isNextLevel) return;
+    if (!isTimerRunning || isGameOver || isNextLevel || isPaused) return;
 
     const intervalId = setInterval(() => {
       setTimer((prevTimer) => {
@@ -78,7 +80,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     }, 10); // Decrement every 10ms (hundredths of a second)
 
     return () => clearInterval(intervalId); // Cleanup on unmount or dependencies change
-  }, [isTimerRunning, isGameOver, isNextLevel]);
+  }, [isTimerRunning, isGameOver, isNextLevel, isPaused]); // Add isPaused to dependency array
 
   const handleGridMushroomEvent = (id, clickedMushroomColor) => {
     if (isGameOver || isNextLevel) return;
@@ -171,6 +173,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     setIncorrectBarProgress(0);
     setIsGameOver(false);
     setIsNextLevel(false);
+    setIsPaused(false);
     setShouldFlashWarning(false);
 
     if (shouldResetLevel) {
@@ -187,6 +190,11 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     resetGridScreen(false);
   };
 
+  // Handle pause and resume
+  const togglePause = () => {
+    setIsPaused(!isPaused);
+  }
+
   return (
     <div className={`grid-screen-ctnr ${darkMode ? "dark" : ""}`}>
       <div className="top-edge-ctnr">
@@ -201,6 +209,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
           className="game-mode-btn"
         />
       </div>
+
           <div className="grid-game-ctnr">
             <GridPrompt
               textColor={textColor}
@@ -237,6 +246,13 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
             />
           </div>
 
+          <div className="bottom-sub-ctnr">
+            <PauseToggle
+            isPaused={isPaused}
+            onClick={togglePause}
+            />
+          </div>
+
           <div className="bottom-edge-ctnr">
             <ResetBtn
             onReset={resetGridScreen}
@@ -246,6 +262,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
               toggleDarkMode={() => setDarkMode((prevMode) => !prevMode)}
             />
           </div>
+          
       {isStartGame && (
         <GridMessageOverlay
           message="Click to Start!"
@@ -267,6 +284,13 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
               onClick={resetGridScreen}
             />
           )}
+          {isPaused && (
+        <GridMessageOverlay
+          message="Paused"
+          color="hotpink"
+          onClick={togglePause} // Call startGame when clicked
+        />
+      )}
     </div>
   );
 };

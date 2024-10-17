@@ -331,7 +331,7 @@ h1, h2 {
   width: 33%;
 }
 /* - game-mode button */
-.game-mode-btn {
+.grid-screen-ctnr .game-mode-btn {
   position: relative; /* Ensure the Home button remains on top */
   z-index: 1002; /* Make sure it’s clickable during game win / next level / game over overlays */
 }
@@ -473,6 +473,45 @@ h1, h2 {
   transition: border-color 0.1s ease-in-out; /* Add transition for flashing effect */
 }
 /* - score */
+
+/*  */
+/*  */
+/*  */
+
+/* grid screen:
+/* ------------------------------------ */
+/*  Bottom-left sub container - button  */
+/* ------------------------------------ */
+
+/* 
+--- bottom--sub-ctnr
+  -- pause-toggle-ctnr
+    - pause-toggle
+*/
+
+/* --- bottom sub container */
+.bottom-sub-ctnr {
+  box-sizing: border-box;
+  grid-column: 1 / 21;
+  grid-row: 17 / 19;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex-wrap: nowrap;
+}
+/* -- pause toggle container */
+.pause-toggle-ctnr {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  height: 100%;
+  width: 33%;
+}
+/* - pause toggle */
+.pause-toggle {
+  width: 25%;
+}
 
 /*  */
 /*  */
