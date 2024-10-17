@@ -29,6 +29,8 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   const [timer, setTimer] = useState(10.0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isNegativePrompt, setIsNegativePrompt] = useState(false);
+
 
   const colors = [
     "blue",
@@ -55,7 +57,16 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     const shuffledColors = shuffleArray(colors);
     const randomWord = shuffledColors[0];
     const randomTextColor = shuffledColors[1];
+
+    // From Level 2 onwards, 25% chance of negative prompt
+  if (level >= 2 && Math.random() < 0.25) {
+    setIsNegativePrompt(true); // Negative prompt
+    setSelectedWord(`not ${randomWord}`);
+  } else {
+    setIsNegativePrompt(false); // Regular prompt
     setSelectedWord(randomWord);
+  }
+
     setTextColor(randomTextColor);
   };
 
@@ -84,9 +95,18 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   }, [isTimerRunning, isGameOver, isNextLevel, isPaused, level]); // Add isPaused to dependency array
 
   const handleGridMushroomEvent = (id, clickedMushroomColor) => {
-    if (isGameOver || isNextLevel) return;
+    if (isGameOver || isNextLevel || isPaused) return;
 
-    let isCorrectClick = clickedMushroomColor === selectedWord;
+    let isCorrectClick;
+    if (isNegativePrompt) {
+      // For negative prompts, the correct click is on a mushroom that is NOT the prompt color
+      const promptColor = selectedWord.replace("not ", "");
+      isCorrectClick = clickedMushroomColor !== promptColor;
+    } else {
+      // For regular prompts, the correct click is on a mushroom that matches the prompt
+      isCorrectClick = clickedMushroomColor === selectedWord;
+    }
+    
     let flashColor = isCorrectClick ? "#14f71f" : "red";
     flashBorders(flashColor);
 
