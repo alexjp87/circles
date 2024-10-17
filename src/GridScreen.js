@@ -245,8 +245,9 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
           <div className="grid-game-ctnr">
             <GridPrompt
               textColor={textColor}
-              selectedWord={selectedWord}
+              selectedWord={(!isPaused && !isGameOver && !isStartGame && !isNextLevel) ? selectedWord : ""}  // Hide the word when certain states are active
               flashColor={borderFlashColor}
+              isGameOver={isGameOver}
             />
             <GridIncorrectBar
               incorrectBarProgress={incorrectBarProgress}
@@ -275,6 +276,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
             <Score
             score={score}
             flashColor={borderFlashColor}
+            isGameOver={isGameOver}
             />
           </div>
 
