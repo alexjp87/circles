@@ -306,6 +306,8 @@ h1, h2 {
 --- top-edge-ctnr
   -- header-ctnr
     - header
+  -- grid-timer-ctnr
+    - grid-timer
   -- game-mode-btn-ctnr
     - game-mode-btn
 */
@@ -314,9 +316,14 @@ h1, h2 {
 
 /* -- header container */
 .grid-screen-ctnr .header-ctnr {
-  width: 67%;
+  width: 33%;
 }
 /* - header */
+
+.grid-timer-ctnr {
+  width: 33%;
+  justify-content: center;
+}
 
 /* -- game-mode button container */
 .grid-screen-ctnr .game-mode-btn-ctnr {

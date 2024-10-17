@@ -9,6 +9,7 @@ import GridPrompt from "./components/GridPrompt";
 import GridIncorrectBar from "./components/GridIncorrectBar";
 import GridCorrectBar from "./components/GridCorrectBar";
 import GridMessageOverlay from "./components/GridMessageOverlay";
+import GridTimer from "./components/GridTimer";
 
 const GridScreen = ({ onReturnToHomeScreen }) => {
   const [gridMushrooms, setGridMushrooms] = useState([]);
@@ -23,7 +24,9 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [isNextLevel, setIsNextLevel] = useState(false);
   const [level, setLevel] = useState(1);
-  const [isStartGame, setIsStartGame] = useState(true); // Add state for Start Overlay
+  const [isStartGame, setIsStartGame] = useState(true);
+  const [timer, setTimer] = useState(10.0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   const colors = [
     "blue",
@@ -61,12 +64,31 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     randomizeWordAndColor();
   }, []);
 
+  useEffect(() => {
+    if (!isTimerRunning || isGameOver || isNextLevel) return;
+
+    const intervalId = setInterval(() => {
+      setTimer((prevTimer) => {
+        if (prevTimer <= 0.01) {
+          handleTimerExpire(); 
+          return 10.0; // Reset to 10 seconds
+        }
+        return prevTimer - 0.01;
+      });
+    }, 10); // Decrement every 10ms (hundredths of a second)
+
+    return () => clearInterval(intervalId); // Cleanup on unmount or dependencies change
+  }, [isTimerRunning, isGameOver, isNextLevel]);
+
   const handleGridMushroomEvent = (id, clickedMushroomColor) => {
     if (isGameOver || isNextLevel) return;
 
     let isCorrectClick = clickedMushroomColor === selectedWord;
     let flashColor = isCorrectClick ? "#14f71f" : "red";
     flashBorders(flashColor);
+
+    // Restart the timer with any click
+    resetTimer();
 
     if (isCorrectClick) {
       setScore((prevScore) => prevScore + 1);
@@ -113,8 +135,33 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     }, 100);
   };
 
+  const handleTimerExpire = () => {
+    setScore((prevScore) => prevScore - 1); // Decrease score by 1
+    setIncorrectBarProgress((prevProgress) => {
+      const newProgress = Math.min(prevProgress + 1, 5);
+
+      if (newProgress === 5) {
+        setIsGameOver(true);
+      }
+
+      if (newProgress === 4) {
+        setShouldFlashWarning(true);
+      }
+
+      return newProgress;
+    });
+
+    flashBorders("red"); // Flash the borders red
+  };
+
+  const resetTimer = () => {
+    setTimer(10.0); // Reset to 10 seconds
+    setIsTimerRunning(true); // Start the timer again
+  };
+
   const startGame = () => {
     setIsStartGame(false); // Hide overlay when the game starts
+    resetTimer(); // Start the timer
   };
 
   const resetGridScreen = (shouldResetLevel = true) => {
@@ -132,6 +179,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     }
 
     randomizeWordAndColor();
+    resetTimer();
   };
 
   const advanceToNextLevel = () => {
@@ -143,6 +191,10 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     <div className={`grid-screen-ctnr ${darkMode ? "dark" : ""}`}>
       <div className="top-edge-ctnr">
         <Header title={`Grid Moshe : Level ${level}`} />
+        <GridTimer
+        timer={timer}
+        isTimerRunning={isTimerRunning}
+        />
         <GameModeBtn
           onClick={onReturnToHomeScreen}
           label="Home"
@@ -176,12 +228,19 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
                 ))}
               </div>
             </div>
-            <GridCorrectBar correctBarProgress={correctBarProgress} />
-            <Score score={score} flashColor={borderFlashColor} />
+            <GridCorrectBar
+            correctBarProgress={correctBarProgress}
+            />
+            <Score
+            score={score}
+            flashColor={borderFlashColor}
+            />
           </div>
 
           <div className="bottom-edge-ctnr">
-            <ResetBtn onReset={resetGridScreen} />
+            <ResetBtn
+            onReset={resetGridScreen}
+            />
             <DarkModeToggle
               darkMode={darkMode}
               toggleDarkMode={() => setDarkMode((prevMode) => !prevMode)}
