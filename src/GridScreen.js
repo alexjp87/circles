@@ -67,7 +67,8 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   }, []);
 
   useEffect(() => {
-    if (!isTimerRunning || isGameOver || isNextLevel || isPaused) return;
+    // Timer active from level 3 onwards
+    if (level < 3 || !isTimerRunning || isGameOver || isNextLevel || isPaused) return;
 
     const intervalId = setInterval(() => {
       setTimer((prevTimer) => {
@@ -80,7 +81,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     }, 10); // Decrement every 10ms (hundredths of a second)
 
     return () => clearInterval(intervalId); // Cleanup on unmount or dependencies change
-  }, [isTimerRunning, isGameOver, isNextLevel, isPaused]); // Add isPaused to dependency array
+  }, [isTimerRunning, isGameOver, isNextLevel, isPaused, level]); // Add isPaused to dependency array
 
   const handleGridMushroomEvent = (id, clickedMushroomColor) => {
     if (isGameOver || isNextLevel) return;
@@ -89,8 +90,10 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     let flashColor = isCorrectClick ? "#14f71f" : "red";
     flashBorders(flashColor);
 
-    // Restart the timer with any click
+    // Restart the timer with any click starting from level 3
+    if (level >= 3) {
     resetTimer();
+    }
 
     if (isCorrectClick) {
       setScore((prevScore) => prevScore + 1);
@@ -182,7 +185,10 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     }
 
     randomizeWordAndColor();
-    resetTimer();
+
+    if (level >= 3) {
+      resetTimer();
+    }
   };
 
   const advanceToNextLevel = () => {
@@ -199,10 +205,12 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     <div className={`grid-screen-ctnr ${darkMode ? "dark" : ""}`}>
       <div className="top-edge-ctnr">
         <Header title={`Grid Moshe : Level ${level}`} />
+        {level >= 3 && (
         <GridTimer
         timer={timer}
         isTimerRunning={isTimerRunning}
         />
+        )}
         <GameModeBtn
           onClick={onReturnToHomeScreen}
           label="Home"
