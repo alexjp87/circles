@@ -6,7 +6,7 @@ const DarkModeToggle = ({ darkMode, toggleDarkMode }) => {
     <div className='dark-mode-toggle-ctnr'>
     <Btn
       onClick={toggleDarkMode}
-      label={darkMode ? 'Light Mode' : 'Dark Mode'}
+      label={darkMode ? 'Light' : 'Dark'}
       className="dark-mode-toggle"
     />
     </div>

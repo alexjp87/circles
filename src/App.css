@@ -361,6 +361,7 @@ h1, h2 {
   display: grid;
   grid-template-columns: repeat(15, 1fr);
   grid-template-rows: repeat(14, 1fr);
+  padding: 0 4em;
 }
 .grid-game-ctnr > div { /* i.e. grid prompt container, grid mushrooms container, and score container */
   display: flex;
