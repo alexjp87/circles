@@ -25,6 +25,9 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   const [isNextLevel, setIsNextLevel] = useState(false); 
   const [level, setLevel] = useState(1);  // Track the current level
 
+  const [isNegativePrompt, setIsNegativePrompt] = useState(false);
+
+
   const colors = ["blue", "salmon", "silver", "purple", "goldenrod", "sienna", "violet", "yellow", "teal"];
 
   const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
@@ -40,8 +43,17 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     const shuffledColors = shuffleArray(colors);
     const randomWord = shuffledColors[0]; 
     const randomTextColor = shuffledColors[1]; 
+    
+    // For levels 2 and above, introduce negative prompts 50% of the time
+  if (level >= 2 && Math.random() > 0.5) {
+    setIsNegativePrompt(true);  // Set as a negative prompt
+    setSelectedWord(`not ${randomWord}`);  // Add "not" to the selected word
+  } else {
+    setIsNegativePrompt(false);  // Set as a regular prompt
     setSelectedWord(randomWord);
-    setTextColor(randomTextColor);
+  }
+
+  setTextColor(randomTextColor);
   };
 
   useEffect(() => {
@@ -52,46 +64,55 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   }, []);
 
   const handleGridMushroomEvent = (id, clickedMushroomColor) => {
-    if (isGameOver || isNextLevel) return; 
-
-    let flashColor = clickedMushroomColor === selectedWord ? "#14f71f" : "red"; 
-    flashBorders(flashColor);
-
-    if (clickedMushroomColor === selectedWord) {
-      setScore((prevScore) => prevScore + 1);
-
-      // Reduce incorrect progress if flashing warning
-    if (incorrectBarProgress === 4) {
-      setIncorrectBarProgress(3);
-      setShouldFlashWarning(false);  // Stop flashing
+    if (isGameOver || isNextLevel) return; // No actions when game over or next level
+  
+    let isCorrectClick;
+    if (isNegativePrompt) {
+      // If negative prompt, correct if clicked color is NOT the prompt color
+      isCorrectClick = clickedMushroomColor !== selectedWord.replace("not ", "");
+    } else {
+      // For regular prompt, correct if clicked color matches the prompt
+      isCorrectClick = clickedMushroomColor === selectedWord;
     }
-
+  
+    let flashColor = isCorrectClick ? "#14f71f" : "red";  // Set flash color
+    flashBorders(flashColor);
+  
+    if (isCorrectClick) {
+      setScore((prevScore) => prevScore + 1);
+  
+      // Reduce incorrect progress if flashing warning
+      if (incorrectBarProgress === 4) {
+        setIncorrectBarProgress(3);
+        setShouldFlashWarning(false);
+      }
+  
       setCorrectBarProgress((prevProgress) => {
         const newProgress = Math.min(prevProgress + 1, 5);
         if (newProgress === 5) {
-          setIsNextLevel(true); 
+          setIsNextLevel(true); // Advance to the next level
         }
         return newProgress;
       });
     } else {
-      setScore((prevScore) => prevScore - 1); 
+      setScore((prevScore) => prevScore - 1);
       setIncorrectBarProgress((prevProgress) => {
         const newProgress = Math.min(prevProgress + 1, 5);
-
-        // Set warning flash when incorrect bar is 4/5 full
+  
         if (newProgress === 4) {
-          setShouldFlashWarning(true);  // Start flashing
+          setShouldFlashWarning(true); // Start flashing warning
         } else {
-          setShouldFlashWarning(false);  // Stop flashing once it goes back to < 4
+          setShouldFlashWarning(false);
         }
-
+  
         if (newProgress === 5) {
-          setIsGameOver(true); 
+          setIsGameOver(true);  // Game over if progress reaches 5
         }
         return newProgress;
       });
     }
-
+  
+    // Shuffle mushrooms and prompt again
     const shuffledColors = shuffleArray(colors);
     const updatedGridMushrooms = generateGridMushrooms(shuffledColors);
     setGridMushrooms(updatedGridMushrooms);
