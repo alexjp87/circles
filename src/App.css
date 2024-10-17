@@ -1,38 +1,527 @@
-.App {
-  text-align: center;
+/* ---------------------------------------------------------------------- */
+/*               Parent container for home and grid screens               */
+/* ---------------------------------------------------------------------- */
+
+.home-screen-ctnr, .grid-screen-ctnr {
+  position: relative;
+  margin: 0;
+  padding: 0.5em 1em;
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  background-color: #f0f0f0;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(20, 1fr);;
+  color: #2c2c2c;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/*  */
+/*  */
+/*  */
+
+/* ---------------------------------------------- */
+/*               HOME SCREEN STYLES               */
+/* ---------------------------------------------- */
+
+/* home screen:
+/* ----------- */
+/*  Dark mode  */
+/* ----------- */
+.home-screen-ctnr.dark {
+  background-color: #2c2c2c;
+  color: #f0f0f0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/*  */
+/*  */
+/*  */
+
+/* Mushrooms */
+
+.mushroom {
+  position: absolute;
+  width: 3.125em;
+  height: 3.125em;
+  background-color: green;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  z-index: 5;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/*  */
+/*  */
+/*  */
+
+/* home-screen:
+/* ----------------------- */
+/*  General button styles  */
+/* ----------------------- */
+
+.btn {
+  padding: 1em 1.2em;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 0.4em;
+  cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+/*  */
+/*  */
+/*  */
+
+/* home screen:
+/* ----------------------- */
+/*  General text styles  */
+/* ----------------------- */
+
+h1, h2 {
+  z-index: 10;
+}
+
+/*  */
+/*  */
+/*  */
+
+/* home-screen:
+/* ----------------------------------------- */
+/*  Top-edge container - header and buttons  */
+/* ----------------------------------------- */
+
+/* 
+--- top-edge-ctnr
+  -- header-ctnr
+    - header
+  -- mushroom-control-btns-ctnr
+    - increase-mushroom-count-btn
+    - reset-mushroom-count-btn
+    - decrease-mushroom-count-btn
+*/
+
+/* --- top edge container */
+.top-edge-ctnr {
+  box-sizing: border-box;
+  grid-column: 1 / 21;
+  grid-row: 1 / 3;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+.top-edge-ctnr > div { /* i.e. header container and mushroom-control buttons container*/
+  height: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* -- header container */
+.header-ctnr {
+  width: 87.5%;
+}
+/* - header */
+
+/* -- mushroom-control buttons container */
+.mushroom-control-btns-ctnr {
+  width: 12.5%;
+  justify-content: space-between;
+}
+/* - mushroom-control buttons */
+.mushroom-control-btns-ctnr > .btn {
+  width: 25%;
+  height: 75%;
+  background-color: #2196F3;
+}
+.mushroom-control-btns-ctnr > .btn:hover {
+  background-color: #1976D2;
+}
+.mushroom-control-btns-ctnr > .btn:disabled { /*!* button disabled functionality not currently working *!*/
+  background-color: #1976D2;
+  cursor: default;
+}
+
+/*  */
+/*  */
+/*  */
+
+/* home-screen:
+/* --------------------------------- */
+/*  Bottom-edge container - buttons  */
+/* --------------------------------- */
+
+/* 
+--- bottom-edge-ctnr
+  -- reset-btn-ctnr
+    - reset-btn
+  -- game-mode-btn-ctnr
+    - game-mode-btn
+  -- timer-dark-mode-ctnr
+    -- timer-ctnr
+      - timer-btn
+      -- timer-text-display-ctnr
+        - timer-text-display
+    -- dark-mode-toggle-ctnr
+      - dark-mode-toggle
+*/
+
+/* --- bottom edge container */
+.bottom-edge-ctnr {
+  box-sizing: border-box;
+  grid-column: 1 / 21;
+  grid-row: 19 / 21;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+.bottom-edge-ctnr > div { /* i.e. reset button container, game mode button container and timer/dark-mode container*/
+  height: 100%;
+  width: 33%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* -- reset button container */
+/* - reset button */
+.reset-btn {
+  width: 25%;
+  background-color: #f44336;
+}
+.reset-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* -- game-mode button container */
+.game-mode-btn-ctnr {
+  justify-content: center;
+}
+/* - game-mode button */
+.game-mode-btn {
+  width: 25%;
+  background-color: #ff8906;
+}
+
+/* -- timer/dark-mode toggle container */
+.timer-dark-mode-ctnr > div { /* i.e. timer container and dark-mode toggle container */
+  height: 100%;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+/* -- timer container */
+/* - timer button */
+.timer-btn {
+  width: 50%;
+  background-color: #06a4ff;
+}
+/* -- timer text display container */
+.timer-text-display-ctnr {
+  height: 100%;
+  width: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+/* - timer text display */
+.timer-text-display {
+  width: 50%;
+}
+/* -- dark mode toggle container */
+.dark-mode-toggle-ctnr {
+  justify-content: end;
+}
+/* - dark mode toggle */
+.dark-mode-toggle {
+  width: 50%;
+  background-color: #4CAF50;
+}
+.dark-mode-toggle:hover {
+  background-color: #388E3C;
+}
+
+/*  */
+/*  */
+/*  */
+/*  */
+/*  */
+/*  */
+
+/* ---------------------------------------------- */
+/*               GRID SCREEN STYLES               */
+/* ---------------------------------------------- */
+
+
+/*  grid screen:
+/* ------------------ */
+/*  Parent container  */
+/* ------------------ */
+.grid-screen-ctnr {
+  background-color: #fff;
+  padding: 0.5em 1em;
+}
+/* grid screen:
+/* ----------- */
+/*  Dark mode  */
+/* ----------- */
+.grid-screen-ctnr.dark {
+  background-color: #0f0e17;
+  color: #f0f0f0;
+}
+
+/*  */
+/*  */
+/*  */
+
+/* grid screen:
+/* ----------------------- */
+/*  General button styles  */
+/* ----------------------- */
+
+.grid-screen-ctnr .btn {
+  background-color: #ff006e;
+  color: #fff;
+}
+.grid-screen-ctnr .btn:hover {
+  background-color: #d61e5e;
+}
+
+/*  */
+/*  */
+/*  */
+
+/* grid screen:
+/* ---------------------------------------- */
+/*  Top-edge container - header and button  */
+/* ---------------------------------------- */
+
+/* 
+--- top-edge-ctnr
+  -- header-ctnr
+    - header
+  -- game-mode-btn-ctnr
+    - game-mode-btn
+*/
+
+/* --- top edge container */
+
+/* -- header container */
+.grid-screen-ctnr .header-ctnr {
+  width: 67%;
+}
+/* - header */
+
+/* -- game-mode button container */
+.grid-screen-ctnr .game-mode-btn-ctnr {
+  justify-content: end;
+  width: 33%;
+}
+/* - game-mode button */
+.game-mode-btn {
+  position: relative; /* Ensure the Home button remains on top */
+  z-index: 1002; /* Make sure it’s clickable during game win / next level / game over overlays */
+}
+
+/*  */
+/*  */
+/*  */
+
+/* grid screen:
+/* ----------------------------------------------------------------------------- */
+/*  Grid game container - prompt, grid mushrooms, correct/incorrect bars, score  */
+/* ----------------------------------------------------------------------------- */
+
+/* 
+--- grid-game-ctnr
+  -- grid-prompt-ctnr
+    - grid-prompt
+  -- incorrect-bar-ctnr
+    - incorrect-bar
+  -- grid-mushrooms-ctnr
+    - grid-mushrooms
+      - grid-mushroom
+  -- correct-bar-ctnr
+    - correct-bar
+  -- score-ctnr
+    - score
+*/
+
+/* --- game container */
+.grid-game-ctnr {
+  box-sizing: border-box;
+  grid-column: 1 / 21;
+  grid-row: 3 / 19;
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  grid-template-rows: repeat(14, 1fr);
+}
+.grid-game-ctnr > div { /* i.e. grid prompt container, grid mushrooms container, and score container */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* -- grid prompt container */
+.grid-prompt-ctnr {
+  grid-column: 1 / 16;
+  grid-row: 1 / 3;
+  border-bottom: solid 0.25em #f0f0f0;
+  box-sizing: border-box;
+  transition: border-color 0.1s ease-in-out; /* Add transition for flashing effect */
+}
+/* - grid prompt */
+
+/* -- incorrect bar container */
+.incorrect-bar-ctnr {
+  grid-column: 1 / 2;
+  grid-row: 3 / 13;
+  box-sizing: border-box;
+  /* border-top: 0.25em solid red;
+  border-bottom: 0.25em solid red; */
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+/* - incorrect bar */
+.incorrect-bar {
+  width: 100%;
+  background-color: red;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transition: height 0.3s ease;
+}
+
+/* -- grid mushrooms container */
+.grid-mushrooms-ctnr {
+  grid-column: 2 / 15;
+  grid-row: 3 / 13;
+}
+/* - grid of mushrooms(9) */
+.grid-mushrooms {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  height: 100%;
+  width: 33%;
+}
+/* - individual grid-mushroom */
+.grid-mushroom {
+  position: relative;
+  width: 4.6875em;
+  height: 4.6875em;
+  border-radius: 50%;
+  cursor: pointer;
+  margin: auto;
+}
+
+/* -- correct bar container */
+.correct-bar-ctnr {
+  grid-column: 15 / 16;
+  grid-row: 3 / 13;
+  box-sizing: border-box;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+/* - correct bar */
+.correct-bar {
+  width: 100%;
+  background-color: #14f71f;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transition: height 0.3s ease;
+}
+
+/* -- score container */
+.score-ctnr {
+  grid-column: 1 / 16;
+  grid-row: 13 / 15;
+  border-top: solid 0.25em #f0f0f0;
+  box-sizing: border-box;
+  transition: border-color 0.1s ease-in-out; /* Add transition for flashing effect */
+}
+/* - score */
+
+/*  */
+/*  */
+/*  */
+
+/* grid screen:
+/* --------------------------------- */
+/*  Bottom-edge container - buttons  */
+/* --------------------------------- */
+
+/* 
+--- bottom-edge-ctnr
+  -- reset-btn-ctnr
+    - reset-btn
+  -- dark-mode-toggle-ctnr
+    - dark-mode-toggle
+*/
+
+/* -- reset button container */
+/* - reset button */
+.grid-screen-ctnr .reset-btn {
+  position: relative; /* Ensure the Reset button remains on top */
+  z-index: 1002; /* Make sure it’s clickable during game win / next level / game over overlays */
+}
+
+/* -- dark-mode toggle container */
+/* - dark-mode toggle */
+.grid-screen-ctnr .dark-mode-toggle {
+  width: 25%;
+}
+
+/*  */
+/*  */
+/*  */
+
+/* grid screen:
+/* ------------------ */
+/*  Message overlays  */
+/* ------------------ */
+
+/* 
+-- message-overlay-ctnr
+  - message-overlay-message
+*/
+
+/* -- message overlay container - covering the whole screen */
+.grid-overlay-ctnr {
+  position: fixed; /* Fixed to cover the entire viewport */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Cover full width of the screen */
+  height: 100vh; /* Cover full height of the screen */
+  background-color: rgba(0, 0, 0, 0.9); /* Semi-translucent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it covers all elements */
+  pointer-events: none; /* Prevent interaction with elements under the overlay */
+  cursor: pointer; /* Add cursor to indicate the overlay is clickable */
+
+}
+
+/* - overlay message */
+.grid-overlay-message {
   color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  padding: 1em;
+  border-radius: 0.3em;
+  z-index: 1001; /* Ensure the message is above the overlay */
+  pointer-events: auto; /* Allow interaction with the Game Over message if needed */
 }
