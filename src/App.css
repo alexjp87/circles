@@ -402,6 +402,16 @@ h1, h2 {
   bottom: 0;
   transition: height 0.3s ease;
 }
+/* - incorrect bar flash animation */
+@keyframes flash-warning {
+  0% { background-color: red; }
+  50% { background-color: rgb(185, 22, 22); }
+  100% { background-color: red; }
+}
+/* Apply flash when warning is active */
+.incorrect-bar.flash-warning {
+  animation: flash-warning 0.5s infinite;
+}
 
 /* -- grid mushrooms container */
 .grid-mushrooms-ctnr {

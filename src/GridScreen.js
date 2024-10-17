@@ -19,6 +19,8 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   const [borderFlashColor, setBorderFlashColor] = useState(""); 
   const [correctBarProgress, setCorrectBarProgress] = useState(0); 
   const [incorrectBarProgress, setIncorrectBarProgress] = useState(0); 
+  const [shouldFlashWarning, setShouldFlashWarning] = useState(false); // New state for flashing warning
+
   const [isGameOver, setIsGameOver] = useState(false); 
   const [isNextLevel, setIsNextLevel] = useState(false); 
   const [level, setLevel] = useState(1);  // Track the current level
@@ -56,7 +58,14 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     flashBorders(flashColor);
 
     if (clickedMushroomColor === selectedWord) {
-      setScore((prevScore) => prevScore + 1); 
+      setScore((prevScore) => prevScore + 1);
+
+      // Reduce incorrect progress if flashing warning
+    if (incorrectBarProgress === 4) {
+      setIncorrectBarProgress(3);
+      setShouldFlashWarning(false);  // Stop flashing
+    }
+
       setCorrectBarProgress((prevProgress) => {
         const newProgress = Math.min(prevProgress + 1, 5);
         if (newProgress === 5) {
@@ -68,6 +77,14 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
       setScore((prevScore) => prevScore - 1); 
       setIncorrectBarProgress((prevProgress) => {
         const newProgress = Math.min(prevProgress + 1, 5);
+
+        // Set warning flash when incorrect bar is 4/5 full
+        if (newProgress === 4) {
+          setShouldFlashWarning(true);  // Start flashing
+        } else {
+          setShouldFlashWarning(false);  // Stop flashing once it goes back to < 4
+        }
+
         if (newProgress === 5) {
           setIsGameOver(true); 
         }
@@ -99,6 +116,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     setIncorrectBarProgress(0); 
     setIsGameOver(false); 
     setIsNextLevel(false);
+    setShouldFlashWarning(false);  // Reset flashing state
 
     if (shouldResetLevel) {
       setLevel(1); 
@@ -127,7 +145,10 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
           selectedWord={selectedWord}
           flashColor={borderFlashColor} 
         />
-        <GridIncorrectBar incorrectBarProgress={incorrectBarProgress} />
+        <GridIncorrectBar
+        incorrectBarProgress={incorrectBarProgress}
+        shouldFlashWarning={shouldFlashWarning}  // Pass the flashing state to the component
+        />
         <div className="grid-mushrooms-ctnr">
           <div className="grid-mushrooms">
             {gridMushrooms.map((gridMushroom) => (
