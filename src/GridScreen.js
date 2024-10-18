@@ -119,61 +119,90 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
 
   const handleGridMushroomEvent = React.useCallback((id, clickedMushroomColor) => {
     if (isGameOver || isNextLevel || isPaused) return;
-
+  
     let isCorrectClick;
-    if (isNegativePrompt) {
-      const promptColor = selectedWord.replace("not ", "");
-      isCorrectClick = clickedMushroomColor !== promptColor;
-    } else {
-      isCorrectClick = clickedMushroomColor === selectedWord;
-    }
-
-    let flashColor = isCorrectClick ? "#14f71f" : "red";
-    flashBorders(flashColor);
-
-    if (level >= 3) {
-      resetTimer();
-    }
-
-    if (isCorrectClick) {
-      setScore((prevScore) => prevScore + 1);
-      if (incorrectBarProgress === 4) {
-        setIncorrectBarProgress(3);
-        setShouldFlashWarning(false);
-      }
-
-      setCorrectBarProgress((prevProgress) => {
-        const newProgress = Math.min(prevProgress + 1, 5);
-        if (newProgress === 5) {
-          setIsNextLevel(true);
-        }
-        return newProgress;
-      });
-    } else {
-      setScore((prevScore) => prevScore - 1);
+  
+    // Check if the clicked mushroom is the pulsing mushroom
+    const isPulsingClick = id === pulsingMushroomId;
+  
+    if (isPulsingClick) {
+      // Handle pulsing mushroom click as an incorrect click with extra penalties
+      setScore((prevScore) => prevScore - 2); // Decrease score by 2
       setIncorrectBarProgress((prevProgress) => {
-        const newProgress = Math.min(prevProgress + 1, 5);
-
+        const newProgress = Math.min(prevProgress + 2, 5); // Increment incorrect bar by 2
+  
         if (newProgress === 4) {
           setShouldFlashWarning(true);
         } else {
           setShouldFlashWarning(false);
         }
-
+  
         if (newProgress === 5) {
           setIsGameOver(true);
           setPulsingMushroomId(null); // Remove pulsing mushroom on game over
         }
         return newProgress;
       });
+  
+      flashBorders("red"); // Flash borders red to indicate an incorrect click
+      resetTimer();
+    } else {
+      // Proceed with normal logic for regular mushroom clicks
+      if (isNegativePrompt) {
+        const promptColor = selectedWord.replace("not ", "");
+        isCorrectClick = clickedMushroomColor !== promptColor;
+      } else {
+        isCorrectClick = clickedMushroomColor === selectedWord;
+      }
+  
+      let flashColor = isCorrectClick ? "#14f71f" : "red";
+      flashBorders(flashColor);
+  
+      if (level >= 3) {
+        resetTimer();
+      }
+  
+      if (isCorrectClick) {
+        setScore((prevScore) => prevScore + 1);
+        if (incorrectBarProgress === 4) {
+          setIncorrectBarProgress(3);
+          setShouldFlashWarning(false);
+        }
+  
+        setCorrectBarProgress((prevProgress) => {
+          const newProgress = Math.min(prevProgress + 1, 5);
+          if (newProgress === 5) {
+            setIsNextLevel(true);
+          }
+          return newProgress;
+        });
+      } else {
+        setScore((prevScore) => prevScore - 1);
+        setIncorrectBarProgress((prevProgress) => {
+          const newProgress = Math.min(prevProgress + 1, 5);
+  
+          if (newProgress === 4) {
+            setShouldFlashWarning(true);
+          } else {
+            setShouldFlashWarning(false);
+          }
+  
+          if (newProgress === 5) {
+            setIsGameOver(true);
+            setPulsingMushroomId(null); // Remove pulsing mushroom on game over
+          }
+          return newProgress;
+        });
+      }
     }
-
+  
     const shuffledColors = shuffleArray(colors);
     const updatedGridMushrooms = generateGridMushrooms(shuffledColors);
     setGridMushrooms(updatedGridMushrooms);
     randomizeWordAndColor(); // Call after updating grid
     assignPulsingMushroom(); // Reassign pulsing mushroom after click event
-  }, [isGameOver, isNextLevel, isPaused, isNegativePrompt, selectedWord, incorrectBarProgress, correctBarProgress, level, shuffleArray, randomizeWordAndColor, assignPulsingMushroom]);
+  }, [isGameOver, isNextLevel, isPaused, isNegativePrompt, selectedWord, incorrectBarProgress, correctBarProgress, pulsingMushroomId, level, shuffleArray, randomizeWordAndColor, assignPulsingMushroom]);
+  
 
   const flashBorders = (flashColor) => {
     setBorderFlashColor(flashColor);
