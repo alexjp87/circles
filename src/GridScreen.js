@@ -44,7 +44,9 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     "teal",
   ];
 
-  const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
+  const shuffleArray = React.useCallback((array) => {
+    return [...array].sort(() => Math.random() - 0.5);
+  }, []);
 
   const generateGridMushrooms = (colorsArray) => {
     return colorsArray.map((color, index) => ({
@@ -94,7 +96,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     return () => clearInterval(intervalId); // Cleanup on unmount or dependencies change
   }, [isTimerRunning, isGameOver, isNextLevel, isPaused, level]); // Add isPaused to dependency array
 
-  const handleGridMushroomEvent = (id, clickedMushroomColor) => {
+  const handleGridMushroomEvent = React.useCallback((id, clickedMushroomColor) => {
     if (isGameOver || isNextLevel || isPaused) return;
 
     let isCorrectClick;
@@ -151,7 +153,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     const updatedGridMushrooms = generateGridMushrooms(shuffledColors);
     setGridMushrooms(updatedGridMushrooms);
     randomizeWordAndColor();
-  };
+  }, [isGameOver, isNextLevel, isPaused, isNegativePrompt, selectedWord, incorrectBarProgress, correctBarProgress, level]);
 
   const flashBorders = (flashColor) => {
     setBorderFlashColor(flashColor);
@@ -188,12 +190,12 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     setIsTimerRunning(true); // Start the timer again
   };
 
-  const startGame = () => {
+  const startGame = React.useCallback(() => {
     setIsStartGame(false); // Hide overlay when the game starts
     resetTimer(); // Start the timer
-  };
+  }, [resetTimer]);
 
-  const resetGridScreen = (shouldResetLevel = true) => {
+  const resetGridScreen = React.useCallback((shouldResetLevel = true) => {
     const resetGridMushrooms = generateGridMushrooms(shuffleArray(colors));
     setGridMushrooms(resetGridMushrooms);
     setCorrectBarProgress(0);
@@ -214,17 +216,17 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     if (level >= 3) {
       resetTimer();
     }
-  };
+  }, [colors, level]);
 
-  const advanceToNextLevel = () => {
+  const advanceToNextLevel = React.useCallback(() => {
     setLevel((prevLevel) => prevLevel + 1);
     resetGridScreen(false);
-  };
+  }, [resetGridScreen]);
 
   // Handle pause and resume
-  const togglePause = () => {
-    setIsPaused(!isPaused);
-  }
+  const togglePause = React.useCallback(() => {
+    setIsPaused(prevState => !prevState);
+  }, []);
 
   return (
     <div className={`grid-screen-ctnr ${darkMode ? "dark" : ""}`}>
