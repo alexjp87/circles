@@ -75,11 +75,13 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   }, []); // Empty dependency array ensures this runs only once
 
   const randomizeWordAndColor = React.useCallback(() => {
+    setIsNegativePrompt(false); // Ensure negative prompt is reset to false before randomizing
+
     const shuffledColors = shuffleArray(colors);
     const randomWord = shuffledColors[0];
     const randomTextColor = shuffledColors[1];
 
-    if (level >= 2 && Math.random() < 0.25) {
+    if (level > 1 && Math.random() < 0.25) {
       setIsNegativePrompt(true);
       setSelectedWord(`not ${randomWord}`);
     } else {
