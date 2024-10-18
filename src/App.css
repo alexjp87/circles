@@ -595,3 +595,13 @@ h1, h2 {
     grid-template-rows: repeat(10, 1fr);
   }
 }
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.grid-mushroom.pulse {
+  animation: pulse 1s infinite;
+}

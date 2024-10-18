@@ -30,7 +30,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isNegativePrompt, setIsNegativePrompt] = useState(false);
-
+  const [pulsingMushroomId, setPulsingMushroomId] = useState(null);
 
   const colors = [
     "blue",
@@ -55,66 +55,82 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     }));
   };
 
-  const randomizeWordAndColor = () => {
-    const shuffledColors = shuffleArray(colors);
-    const randomWord = shuffledColors[0];
-    const randomTextColor = shuffledColors[1];
-
-    // From Level 2 onwards, 25% chance of negative prompt
-  if (level >= 2 && Math.random() < 0.25) {
-    setIsNegativePrompt(true); // Negative prompt
-    setSelectedWord(`not ${randomWord}`);
-  } else {
-    setIsNegativePrompt(false); // Regular prompt
-    setSelectedWord(randomWord);
-  }
-
-    setTextColor(randomTextColor);
-  };
+  const assignPulsingMushroom = React.useCallback(() => {
+    if (level >= 4) {
+      const availableMushrooms = gridMushrooms.filter(
+        (mushroom) => mushroom.color !== selectedWord
+      );
+      const randomPulsingMushroom = availableMushrooms[Math.floor(Math.random() * availableMushrooms.length)];
+      setPulsingMushroomId(randomPulsingMushroom ? randomPulsingMushroom.id : null);
+    } else {
+      setPulsingMushroomId(null); // No pulsing mushroom in level 1
+    }
+  }, [level, gridMushrooms, selectedWord]);
 
   useEffect(() => {
     const initialColors = shuffleArray(colors);
     const initialGridMushrooms = generateGridMushrooms(initialColors);
     setGridMushrooms(initialGridMushrooms);
     randomizeWordAndColor();
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once
+
+  const randomizeWordAndColor = React.useCallback(() => {
+    const shuffledColors = shuffleArray(colors);
+    const randomWord = shuffledColors[0];
+    const randomTextColor = shuffledColors[1];
+
+    if (level >= 2 && Math.random() < 0.25) {
+      setIsNegativePrompt(true);
+      setSelectedWord(`not ${randomWord}`);
+    } else {
+      setIsNegativePrompt(false);
+      setSelectedWord(randomWord);
+    }
+
+    setTextColor(randomTextColor);
+  }, [level, shuffleArray, colors]);
 
   useEffect(() => {
-    // Timer active from level 3 onwards
+    if (level >= 4) {
+      assignPulsingMushroom();
+    } else {
+      setPulsingMushroomId(null);
+    }
+  }, [level, gridMushrooms, selectedWord, assignPulsingMushroom]);
+
+  // Timer logic for levels 3 and onwards
+  useEffect(() => {
     if (level < 3 || !isTimerRunning || isGameOver || isNextLevel || isPaused) return;
 
     const intervalId = setInterval(() => {
       setTimer((prevTimer) => {
         if (prevTimer <= 0.01) {
-          handleTimerExpire(); 
-          return 10.0; // Reset to 10 seconds
+          handleTimerExpire();
+          return level >= 4 ? 9.5 : 10.0; // Reset to 9.5 seconds for level 4+, otherwise 10 seconds
         }
-        return prevTimer - 0.01;
+        return prevTimer - 0.01; // Decrement timer by hundredths of a second
       });
-    }, 10); // Decrement every 10ms (hundredths of a second)
+    }, 10); // Runs every 10ms for precise countdown
 
-    return () => clearInterval(intervalId); // Cleanup on unmount or dependencies change
-  }, [isTimerRunning, isGameOver, isNextLevel, isPaused, level]); // Add isPaused to dependency array
+    return () => clearInterval(intervalId); // Cleanup the interval on unmount
+  }, [isTimerRunning, isGameOver, isNextLevel, isPaused, level]);
 
   const handleGridMushroomEvent = React.useCallback((id, clickedMushroomColor) => {
     if (isGameOver || isNextLevel || isPaused) return;
 
     let isCorrectClick;
     if (isNegativePrompt) {
-      // For negative prompts, the correct click is on a mushroom that is NOT the prompt color
       const promptColor = selectedWord.replace("not ", "");
       isCorrectClick = clickedMushroomColor !== promptColor;
     } else {
-      // For regular prompts, the correct click is on a mushroom that matches the prompt
       isCorrectClick = clickedMushroomColor === selectedWord;
     }
-    
+
     let flashColor = isCorrectClick ? "#14f71f" : "red";
     flashBorders(flashColor);
 
-    // Restart the timer with any click starting from level 3
     if (level >= 3) {
-    resetTimer();
+      resetTimer();
     }
 
     if (isCorrectClick) {
@@ -144,6 +160,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
 
         if (newProgress === 5) {
           setIsGameOver(true);
+          setPulsingMushroomId(null); // Remove pulsing mushroom on game over
         }
         return newProgress;
       });
@@ -152,8 +169,9 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     const shuffledColors = shuffleArray(colors);
     const updatedGridMushrooms = generateGridMushrooms(shuffledColors);
     setGridMushrooms(updatedGridMushrooms);
-    randomizeWordAndColor();
-  }, [isGameOver, isNextLevel, isPaused, isNegativePrompt, selectedWord, incorrectBarProgress, correctBarProgress, level]);
+    randomizeWordAndColor(); // Call after updating grid
+    assignPulsingMushroom(); // Reassign pulsing mushroom after click event
+  }, [isGameOver, isNextLevel, isPaused, isNegativePrompt, selectedWord, incorrectBarProgress, correctBarProgress, level, shuffleArray, randomizeWordAndColor, assignPulsingMushroom]);
 
   const flashBorders = (flashColor) => {
     setBorderFlashColor(flashColor);
@@ -163,12 +181,13 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
   };
 
   const handleTimerExpire = () => {
-    setScore((prevScore) => prevScore - 1); // Decrease score by 1
+    setScore((prevScore) => prevScore - 1);
     setIncorrectBarProgress((prevProgress) => {
       const newProgress = Math.min(prevProgress + 1, 5);
 
       if (newProgress === 5) {
         setIsGameOver(true);
+        setPulsingMushroomId(null); // Remove pulsing mushroom on game over
       }
 
       if (newProgress === 4) {
@@ -183,7 +202,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
 
   const resetTimer = () => {
     if (level >= 4) {
-      setTimer(9.5); // Set timer to 9 seconds from Level 4 onwards
+      setTimer(9.5); // Set timer to 9.5 seconds from Level 4 onwards
     } else {
       setTimer(10.0); // Set timer to 10 seconds for earlier levels
     }
@@ -192,6 +211,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
 
   const startGame = React.useCallback(() => {
     setIsStartGame(false); // Hide overlay when the game starts
+    setIsTimerRunning(true); // Ensure the timer starts running
     resetTimer(); // Start the timer
   }, [resetTimer]);
 
@@ -205,6 +225,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     setIsPaused(false);
     setShouldFlashWarning(false);
     setIsNegativePrompt(false);
+    setPulsingMushroomId(null); // Remove pulsing mushroom on reset
 
     if (shouldResetLevel) {
       setLevel(1);
@@ -216,14 +237,13 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
     if (level >= 3) {
       resetTimer();
     }
-  }, [colors, level]);
+  }, [shuffleArray, colors, randomizeWordAndColor]);
 
   const advanceToNextLevel = React.useCallback(() => {
     setLevel((prevLevel) => prevLevel + 1);
     resetGridScreen(false);
   }, [resetGridScreen]);
 
-  // Handle pause and resume
   const togglePause = React.useCallback(() => {
     setIsPaused(prevState => !prevState);
   }, []);
@@ -245,61 +265,62 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
         />
       </div>
 
-          <div className="grid-game-ctnr">
-            <GridPrompt
-              textColor={textColor}
-              selectedWord={(!isPaused && !isGameOver && !isStartGame && !isNextLevel) ? selectedWord : ""}  // Hide the word when certain states are active
-              flashColor={borderFlashColor}
-              isGameOver={isGameOver}
-            />
-            <GridIncorrectBar
-              incorrectBarProgress={incorrectBarProgress}
-              shouldFlashWarning={shouldFlashWarning}
-            />
-            <div className="grid-mushrooms-ctnr">
-              <div className="grid-mushrooms">
-                {gridMushrooms.map((gridMushroom) => (
-                  <GridMushroom
-                    key={gridMushroom.id}
-                    id={gridMushroom.id}
-                    color={gridMushroom.color}
-                    onClick={() =>
-                      handleGridMushroomEvent(
-                        gridMushroom.id,
-                        gridMushroom.color
-                      )
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-            <GridCorrectBar
-            correctBarProgress={correctBarProgress}
-            />
-            <Score
-            score={score}
-            flashColor={borderFlashColor}
-            isGameOver={isGameOver}
-            />
+      <div className="grid-game-ctnr">
+        <GridPrompt
+          textColor={textColor}
+          selectedWord={(!isPaused && !isGameOver && !isStartGame && !isNextLevel) ? selectedWord : ""}  // Hide the word when certain states are active
+          flashColor={borderFlashColor}
+          isGameOver={isGameOver}
+        />
+        <GridIncorrectBar
+          incorrectBarProgress={incorrectBarProgress}
+          shouldFlashWarning={shouldFlashWarning}
+        />
+        <div className="grid-mushrooms-ctnr">
+          <div className="grid-mushrooms">
+            {gridMushrooms.map((gridMushroom) => (
+              <GridMushroom
+                key={gridMushroom.id}
+                id={gridMushroom.id}
+                color={gridMushroom.color}
+                isPulsing={gridMushroom.id === pulsingMushroomId}
+                onClick={() =>
+                  handleGridMushroomEvent(
+                    gridMushroom.id,
+                    gridMushroom.color
+                  )
+                }
+              />
+            ))}
           </div>
+        </div>
+        <GridCorrectBar
+          correctBarProgress={correctBarProgress}
+        />
+        <Score
+          score={score}
+          flashColor={borderFlashColor}
+          isGameOver={isGameOver}
+        />
+      </div>
 
-          <div className="bottom-sub-ctnr">
-            <PauseToggle
-            isPaused={isPaused}
-            onClick={togglePause}
-            />
-          </div>
+      <div className="bottom-sub-ctnr">
+        <PauseToggle
+          isPaused={isPaused}
+          onClick={togglePause}
+        />
+      </div>
 
-          <div className="bottom-edge-ctnr">
-            <ResetBtn
-            onReset={resetGridScreen}
-            />
-            <DarkModeToggle
-              darkMode={darkMode}
-              toggleDarkMode={() => setDarkMode((prevMode) => !prevMode)}
-            />
-          </div>
-          
+      <div className="bottom-edge-ctnr">
+        <ResetBtn
+          onReset={resetGridScreen}
+        />
+        <DarkModeToggle
+          darkMode={darkMode}
+          toggleDarkMode={() => setDarkMode((prevMode) => !prevMode)}
+        />
+      </div>
+      
       {isStartGame && (
         <GridMessageOverlay
           message="Click to Start!"
@@ -307,25 +328,25 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
           onClick={startGame} // Call startGame when clicked
         />
       )}
-          {isNextLevel && (
-            <GridMessageOverlay
-              message={"Next Level!"}
-              color={"#14f71f"}
-              onClick={advanceToNextLevel}
-            />
-          )}
-          {isGameOver && (
-            <GridMessageOverlay
-              message={"Game Over"}
-              color={"red"}
-              onClick={resetGridScreen}
-            />
-          )}
-          {isPaused && (
+      {isNextLevel && (
+        <GridMessageOverlay
+          message={"Next Level!"}
+          color={"#14f71f"}
+          onClick={advanceToNextLevel}
+        />
+      )}
+      {isGameOver && (
+        <GridMessageOverlay
+          message={"Game Over"}
+          color={"red"}
+          onClick={resetGridScreen}
+        />
+      )}
+      {isPaused && (
         <GridMessageOverlay
           message="Paused"
           color="hotpink"
-          onClick={togglePause} // Call startGame when clicked
+          onClick={togglePause}
         />
       )}
     </div>
