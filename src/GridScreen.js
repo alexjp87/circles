@@ -106,13 +106,13 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
 
     const intervalId = setInterval(() => {
       setTimer((prevTimer) => {
-        if (prevTimer <= 0.01) {
+        if (prevTimer <= 0.1) {
           handleTimerExpire();
           return level >= 4 ? 9.5 : 10.0; // Reset to 9.5 seconds for level 4+, otherwise 10 seconds
         }
-        return prevTimer - 0.01; // Decrement timer by hundredths of a second
+        return prevTimer - 0.1; // Decrement timer by hundredths of a second
       });
-    }, 10); // Runs every 10ms for precise countdown
+    }, 100); // Runs every 10ms for precise countdown
 
     return () => clearInterval(intervalId); // Cleanup the interval on unmount
   }, [isTimerRunning, isGameOver, isNextLevel, isPaused, level]);
