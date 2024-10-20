@@ -12,7 +12,7 @@ import GridMessageOverlay from "./components/GridMessageOverlay";
 import GridTimer from "./components/GridTimer";
 import PauseToggle from "./components/PauseToggle";
 
-const GridScreen = ({ onReturnToHomeScreen }) => {
+const GridScreen = ({ returnToHomeScreen }) => {
   const [gridMushrooms, setGridMushrooms] = useState([]);
   const [score, setScore] = useState(0);
   const [darkMode, setDarkMode] = useState(true);
@@ -290,7 +290,7 @@ const GridScreen = ({ onReturnToHomeScreen }) => {
         />
         )}
         <GameModeBtn
-          onClick={onReturnToHomeScreen}
+          onClick={returnToHomeScreen}
           label="Home"
           className="game-mode-btn"
         />

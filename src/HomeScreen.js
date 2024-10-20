@@ -7,7 +7,7 @@ import ResetBtn from './components/ResetBtn';
 import TimerBtn from './components/TimerBtn';
 import GameModeBtn from './components/GameModeBtn';
 
-const HomeScreen = ({ onSwitchToGameMode }) => {
+const HomeScreen = ({ switchToGameMode }) => {
     const [mushrooms, setMushrooms] = useState([]);
     const [mushroomCount, setMushroomCount] = useState(10);
     const [timer, setTimer] = useState(3);
@@ -135,7 +135,7 @@ const HomeScreen = ({ onSwitchToGameMode }) => {
             onReset={resetHomeScreen}
             />
             <GameModeBtn
-            onClick={onSwitchToGameMode}
+            onClick={switchToGameMode}
             label="Grid"
             className="game-mode-btn"
             />
